@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quầy Thu Ngân & Thanh Toán POS - LeViet Restaurant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <a href="index.html" class="sidebar-brand">
+      <i class="fas fa-crown"></i>
+      <span>LEVIET OPS</span>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="room-map.html"><i class="fas fa-th-large"></i> Sơ Đồ Phòng (Lễ Tân)</a></li>
+      <li><a href="kitchen.html"><i class="fas fa-fire-burner"></i> Màn Hình Bếp (KDS)</a></li>
+      <li><a href="runner.html"><i class="fas fa-person-walking-luggage"></i> Nhân Viên Bê Món</a></li>
+      <li><a href="housekeeping.html"><i class="fas fa-broom"></i> Nhân Viên Vệ Sinh</a></li>
+      <li><a href="pos.html" class="active"><i class="fas fa-cash-register"></i> Thu Ngân & POS</a></li>
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Quản Lý & Báo Cáo</a></li>
+    </ul>
+    <div class="p-3 border-top border-secondary text-center small">
+      <a href="../index.html" class="text-secondary text-decoration-none"><i class="fas fa-external-link-alt me-1"></i> Trang Khách Hàng</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <header class="admin-header">
+      <div class="d-flex align-items-center gap-3">
+        <h4 class="mb-0 fw-bold text-success"><i class="fas fa-cash-register me-2"></i> Quầy Thu Ngân & Thanh Toán Hóa Đơn</h4>
+        <span class="badge bg-success">Tích hợp Ưu đãi & VietQR</span>
+      </div>
+      <div class="role-pills">
+        <a href="room-map.html" class="role-pill">Lễ Tân</a>
+        <a href="kitchen.html" class="role-pill">Bếp KDS</a>
+        <a href="runner.html" class="role-pill">Bê Món</a>
+        <a href="housekeeping.html" class="role-pill">Vệ Sinh</a>
+        <a href="pos.html" class="role-pill active">Thu Ngân</a>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      
+      <div class="row g-4">
+        
+        <!-- Left Column: Chọn phòng & Chi tiết hóa đơn -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <label class="form-label fw-bold mb-1"><i class="fas fa-door-open text-primary me-2"></i> Chọn Phòng Cần Thanh Toán:</label>
+              <select id="activeRoomSelect" class="form-select" onchange="loadRoomBill()">
+                <!-- Render các phòng đang OCCUPIED -->
+              </select>
+            </div>
+            <div class="card-body p-4" id="billDetailContainer">
+              <!-- Render thông tin chi tiết đơn & tính tiền -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Áp mã ưu đãi & Thanh toán VietQR -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm" id="paymentActionCard">
+            <div class="card-header bg-dark text-white py-3">
+              <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-qrcode me-2"></i> Thanh Toán & Ưu Đãi</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+              
+              <!-- Áp mã khuyến mãi -->
+              <div class="mb-3 text-start">
+                <label class="form-label small fw-bold text-secondary text-uppercase"><i class="fas fa-ticket text-warning me-1"></i> Áp dụng mã ưu đãi:</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" id="posPromoInput" class="form-control text-uppercase" placeholder="LEVIETVIP, TIECSINHNHAT, TRIAN100K...">
+                  <button class="btn btn-outline-dark fw-bold" type="button" onclick="applyPromoInPos()">Áp Dụng</button>
+                </div>
+                <div id="posPromoFeedback" class="small mt-1"></div>
+              </div>
+
+              <!-- Hình thức thanh toán -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary text-uppercase d-block text-start">Hình thức thanh toán:</label>
+                <div class="btn-group w-100" role="group">
+                  <input type="radio" class="btn-check" name="payMethod" id="payQR" value="VIETQR" checked onchange="updatePayMethod()">
+                  <label class="btn btn-outline-primary fw-bold" for="payQR"><i class="fas fa-qrcode me-1"></i> VietQR</label>
+
+                  <input type="radio" class="btn-check" name="payMethod" id="payCash" value="CASH" onchange="updatePayMethod()">
+                  <label class="btn btn-outline-primary fw-bold" for="payCash"><i class="fas fa-money-bill-wave me-1"></i> Tiền Mặt</label>
+                </div>
+              </div>
+
+              <!-- VietQR Container -->
+              <div id="qrBox" class="p-3 bg-light rounded border mb-3">
+                <span class="small text-muted d-block mb-2">Quét mã bằng app ngân hàng bất kỳ để thanh toán:</span>
+                <img id="vietQrImg" src="" alt="Mã VietQR" class="img-fluid rounded border shadow-sm" style="max-height: 200px;">
+                <div class="mt-2 fw-bold text-danger fs-5" id="qrTotalDisplay">0 đ</div>
+                <small class="text-secondary d-block">Nội dung: <strong id="qrContentDisplay">LEVIET</strong></small>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                  <i class="fas fa-print me-2"></i> In Phiếu Tạm Tính
+                </button>
+                <button type="button" class="btn btn-success btn-lg fw-bold shadow-sm" onclick="confirmCheckout()">
+                  <i class="fas fa-check-circle me-2"></i> Hoàn Tất Thanh Toán & Trả Phòng
+                </button>
+              </div>
+
+              <small class="text-muted d-block mt-3">
+                <i class="fas fa-shield-alt text-success me-1"></i> Sau khi thanh toán, phòng sẽ tự động chuyển sang quy trình <strong>Nhân Viên Vệ Sinh</strong> dọn dẹp.
+              </small>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/db.js"></script>
+  <script>
+    let currentSelectedRoomId = null;
+    let currentCalculatedSubTotal = 0;
+    let currentDiscountAmount = 0;
+    let currentAppliedPromoCode = '';
+    let currentFinalTotal = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadActiveRooms();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const preRoomId = urlParams.get('roomId');
+      if (preRoomId) {
+        document.getElementById('activeRoomSelect').value = preRoomId;
+      }
+      loadRoomBill();
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'leviet_last_event') {
+          loadActiveRooms();
+          loadRoomBill();
+        }
+      });
+    });
+
+    function loadActiveRooms() {
+      const select = document.getElementById('activeRoomSelect');
+      const occupiedRooms = DB.getRooms().filter(r => r.status === 'OCCUPIED');
+      if (!select) return;
+
+      if (occupiedRooms.length === 0) {
+        select.innerHTML = '<option value="">-- Không có phòng nào đang có khách --</option>';
+        return;
+      }
+
+      select.innerHTML = occupiedRooms.map(r => `
+        <option value="${r.id}">${r.name} (Tầng ${r.floor}) - Đang có khách</option>
+      `).join('');
+    }
+
+    function loadRoomBill() {
+      const select = document.getElementById('activeRoomSelect');
+      const roomId = Number(select.value);
+      currentSelectedRoomId = roomId;
+
+      const container = document.getElementById('billDetailContainer');
+      const actionCard = document.getElementById('paymentActionCard');
+
+      if (!roomId) {
+        container.innerHTML = `
+          <div class="text-center py-5 text-muted">
+            <i class="fas fa-receipt fs-1 mb-3"></i>
+            <h5>Chưa chọn phòng hoặc không có phòng nào đang phục vụ</h5>
+          </div>
+        `;
+        actionCard.style.opacity = '0.5';
+        actionCard.style.pointerEvents = 'none';
+        return;
+      }
+
+      actionCard.style.opacity = '1';
+      actionCard.style.pointerEvents = 'auto';
+
+      const room = DB.getRoomById(roomId);
+      const order = DB.getOrderByRoomId(roomId);
+      const roomType = DB.getRoomTypeById(room.typeId);
+
+      if (!order) return;
+
+      // Nạp mã ưu đãi từ order nếu có
+      if (order.promoCode && !currentAppliedPromoCode) {
+        currentAppliedPromoCode = order.promoCode;
+        document.getElementById('posPromoInput').value = order.promoCode;
+      }
+
+      const checkinTime = new Date(order.checkinTime);
+      const now = new Date();
+      const diffHours = Math.max(1, Math.ceil((now - checkinTime) / (1000 * 60 * 60)));
+      const roomFee = (roomType.hourlyRate || 0) * diffHours;
+
+      const foodTotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      currentCalculatedSubTotal = foodTotal + roomFee;
+
+      // Tính chiết khấu ưu đãi
+      if (currentAppliedPromoCode) {
+        const discountRes = DB.calculateDiscount(currentAppliedPromoCode, currentCalculatedSubTotal);
+        if (discountRes.valid) {
+          currentDiscountAmount = discountRes.discountAmount;
+          document.getElementById('posPromoFeedback').innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>${discountRes.message}</span>`;
+        } else {
+          currentDiscountAmount = 0;
+          document.getElementById('posPromoFeedback').innerHTML = `<span class="text-danger small">${discountRes.message}</span>`;
+        }
+      } else {
+        currentDiscountAmount = 0;
+        document.getElementById('posPromoFeedback').innerHTML = '';
+      }
+
+      currentFinalTotal = Math.max(0, currentCalculatedSubTotal - currentDiscountAmount);
+
+      container.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+          <div>
+            <h4 class="fw-bold text-dark mb-0">${room.name}</h4>
+            <span class="badge bg-secondary">${roomType.name}</span>
+          </div>
+          <div class="text-end">
+            <small class="text-muted d-block">Giờ vào: ${checkinTime.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</small>
+            <span class="badge bg-primary">Thời lượng: ${diffHours} giờ</span>
+          </div>
+        </div>
+
+        <h6 class="fw-bold text-secondary mb-2">Chi tiết món ăn:</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Món</th>
+                <th class="text-center">SL</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-end">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">Chưa gọi món</td></tr>' : 
+                order.items.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td class="text-center">${item.quantity}</td>
+                    <td class="text-end">${(item.price).toLocaleString()} đ</td>
+                    <td class="text-end fw-bold">${(item.price * item.quantity).toLocaleString()} đ</td>
+                  </tr>
+                `).join('')
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-light p-3 rounded">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tiền món ăn:</span>
+            <strong>${foodTotal.toLocaleString()} đ</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tiền phòng (${roomType.hourlyRate > 0 ? roomType.hourlyRate.toLocaleString() + ' đ/h x ' + diffHours + 'h' : 'Miễn phí'}):</span>
+            <strong>${roomFee.toLocaleString()} đ</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tạm tính (Subtotal):</span>
+            <strong>${currentCalculatedSubTotal.toLocaleString()} đ</strong>
+          </div>
+          ${currentDiscountAmount > 0 ? `
+            <div class="d-flex justify-content-between mb-2 text-success fw-bold">
+              <span>Ưu đãi giảm giá (${currentAppliedPromoCode}):</span>
+              <span>-${currentDiscountAmount.toLocaleString()} đ</span>
+            </div>
+          ` : ''}
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fs-5 fw-bold text-dark">TỔNG CẦN THANH TOÁN:</span>
+            <span class="fs-4 fw-bold text-danger">${currentFinalTotal.toLocaleString()} đ</span>
+          </div>
+        </div>
+      `;
+
+      // Cập nhật mã VietQR theo số tiền thực tế sau giảm giá
+      const qrUrl = `https://img.vietqr.io/image/MB-0988123456-compact2.png?amount=${currentFinalTotal}&addInfo=LEVIET%20${room.code}%20${order.id}&accountName=NHA%20HANG%20LEVIET`;
+      document.getElementById('vietQrImg').src = qrUrl;
+      document.getElementById('qrTotalDisplay').innerText = `${currentFinalTotal.toLocaleString()} đ`;
+      document.getElementById('qrContentDisplay').innerText = `LEVIET ${room.code} ${order.id}`;
+    }
+
+    function applyPromoInPos() {
+      const code = document.getElementById('posPromoInput').value.trim().toUpperCase();
+      currentAppliedPromoCode = code;
+      loadRoomBill();
+    }
+
+    function updatePayMethod() {
+      const isQR = document.getElementById('payQR').checked;
+      document.getElementById('qrBox').style.display = isQR ? 'block' : 'none';
+    }
+
+    function confirmCheckout() {
+      if (!currentSelectedRoomId) return;
+
+      const isQR = document.getElementById('payQR').checked;
+      const method = isQR ? 'VIETQR' : 'TIỀN MẶT';
+
+      const invoice = DB.checkoutRoom(currentSelectedRoomId, method, currentAppliedPromoCode);
+      if (invoice) {
+        let promoText = invoice.discountAmount > 0 ? ` (Đã áp mã ${invoice.promoCode}: -${invoice.discountAmount.toLocaleString()} đ)` : '';
+        alert(`Thanh toán thành công hóa đơn ${invoice.invoiceId}!\nSố tiền: ${invoice.totalAmount.toLocaleString()} đ${promoText}\nPhòng đã được chuyển sang trạng thái CẦN DỌN DẸP cho Nhân viên Vệ sinh.`);
+        currentAppliedPromoCode = '';
+        loadActiveRooms();
+        loadRoomBill();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt Bàn & Phòng Tiệc - Nhà hàng LeViet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-leviet sticky-top">
+    <div class="container">
+      <a class="navbar-brand navbar-brand-leviet" href="index.html">
+        <i class="fas fa-crown"></i>
+        <span>LEVIET RESTAURANT</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="index.html">Trang Chủ</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="rooms.html">Các Loại Phòng</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="menu.html">Thực Đơn</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet active" href="booking.html">Đặt Bàn / Phòng</a></li>
+          <li class="nav-item ms-lg-3">
+            <a href="admin/index.html" class="btn btn-outline-gold btn-sm"><i class="fas fa-user-shield me-1"></i> Quản Trị</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="py-5" style="background-color: #f7f5f0; min-height: 80vh;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-dark text-white p-4 border-bottom border-warning border-3">
+              <h3 class="mb-1 text-warning fw-bold"><i class="fas fa-calendar-check me-2"></i> Phiếu Đặt Phòng & Bàn Tiệc LeViet</h3>
+              <p class="mb-0 text-secondary small">Vui lòng điền thông tin để đội ngũ Lễ tân LeViet giữ phòng và áp dụng các chương trình ưu đãi tốt nhất cho quý khách.</p>
+            </div>
+            <div class="card-body p-4 p-md-5">
+              
+              <!-- Form Success Alert -->
+              <div id="successAlert" class="alert alert-success d-none mb-4" role="alert">
+                <h5 class="alert-heading fw-bold"><i class="fas fa-check-circle me-2"></i> Đặt Phòng Thành Công!</h5>
+                <p class="mb-1" id="successMessage"></p>
+                <hr>
+                <p class="mb-0 small">Thông tin đặt tiệc đã được ghi nhận vào hệ thống Quản lý của Quầy Lễ Tân.</p>
+              </div>
+
+              <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+                <div class="row g-3">
+                  <!-- Họ tên -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Họ và Tên quý khách <span class="text-danger">*</span></label>
+                    <input type="text" id="custName" class="form-control" required placeholder="Ví dụ: Nguyễn Văn Đức">
+                  </div>
+                  <!-- Số điện thoại -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                    <input type="tel" id="custPhone" class="form-control" required placeholder="Ví dụ: 0988123456">
+                  </div>
+
+                  <!-- Loại phòng mong muốn (7 loại phòng) -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Chọn Hạng Phòng Tiệc <span class="text-danger">*</span></label>
+                    <select id="roomTypeSelect" class="form-select" required>
+                      <!-- Render bằng JS -->
+                    </select>
+                  </div>
+                  <!-- Số lượng khách -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Số lượng người dự kiến <span class="text-danger">*</span></label>
+                    <input type="number" id="guestCount" class="form-control" min="1" max="100" value="6" required>
+                  </div>
+
+                  <!-- Ngày đến -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Ngày dùng bữa <span class="text-danger">*</span></label>
+                    <input type="date" id="bookingDate" class="form-control" required>
+                  </div>
+                  <!-- Giờ đến -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Khung giờ đến <span class="text-danger">*</span></label>
+                    <select id="bookingTime" class="form-select" required>
+                      <option value="11:00">11:00 - Trưa</option>
+                      <option value="11:30">11:30 - Trưa</option>
+                      <option value="12:00">12:00 - Trưa</option>
+                      <option value="12:30">12:30 - Trưa</option>
+                      <option value="18:00" selected>18:00 - Tối</option>
+                      <option value="18:30">18:30 - Tối</option>
+                      <option value="19:00">19:00 - Tối</option>
+                      <option value="19:30">19:30 - Tối</option>
+                      <option value="20:00">20:00 - Tối</option>
+                    </select>
+                  </div>
+
+                  <!-- Mã ưu đãi / Khuyến mãi -->
+                  <div class="col-12">
+                    <label class="form-label fw-bold"><i class="fas fa-ticket text-warning me-1"></i> Mã Ưu Đãi / Khuyến Mãi (Nếu có)</label>
+                    <div class="input-group">
+                      <input type="text" id="promoCodeInput" class="form-control text-uppercase" placeholder="Nhập mã: LEVIETVIP, TIECSINHNHAT, HAPPYHOUR, TRIAN100K...">
+                      <button class="btn btn-outline-dark fw-bold" type="button" onclick="checkPromoCode()">
+                        <i class="fas fa-check me-1"></i> Áp Dụng
+                      </button>
+                    </div>
+                    <div id="promoFeedback" class="small mt-1"></div>
+                  </div>
+
+                  <!-- Yêu cầu đặc biệt -->
+                  <div class="col-12">
+                    <label class="form-label fw-bold">Yêu cầu đặc biệt / Ghi chú trang trí phòng</label>
+                    <textarea id="bookingNote" class="form-control" rows="3" placeholder="Ví dụ: Chuẩn bị sẵn dàn Karaoke, cắm hoa sinh nhật, ướp lạnh sẵn 2 chai vang Bordeaux..."></textarea>
+                  </div>
+
+                  <!-- Submit button -->
+                  <div class="col-12 text-end mt-4">
+                    <a href="rooms.html" class="btn btn-outline-secondary me-2">Quay Lại</a>
+                    <button type="submit" class="btn btn-gold px-4 py-2 fw-bold">
+                      <i class="fas fa-paper-plane me-2"></i> Xác Nhận Đặt Tiệc
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-leviet">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2026 Nhà hàng LeViet - Đồ án 2 Thiết kế web cơ bản (UTEHY).</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('bookingDate');
+      dateInput.min = today;
+      dateInput.value = today;
+
+      // Nạp danh sách 7 loại phòng
+      const types = DB.getRoomTypes();
+      const select = document.getElementById('roomTypeSelect');
+      if (select && types) {
+        select.innerHTML = types.map(t => `
+          <option value="${t.id}">${t.name} (${t.capacity}) - ${t.hourlyRate > 0 ? t.hourlyRate.toLocaleString() + ' đ/h' : 'Miễn phí'}</option>
+        `).join('');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const preSelectedTypeId = urlParams.get('roomTypeId');
+        if (preSelectedTypeId) {
+          select.value = preSelectedTypeId;
+        }
+
+        const prePromo = urlParams.get('promo');
+        if (prePromo) {
+          document.getElementById('promoCodeInput').value = prePromo;
+          checkPromoCode();
+        }
+      }
+    });
+
+    function checkPromoCode() {
+      const code = document.getElementById('promoCodeInput').value.trim();
+      const feedback = document.getElementById('promoFeedback');
+      if (!code) {
+        feedback.innerHTML = '';
+        return;
+      }
+
+      const promo = DB.getPromotionByCode(code);
+      if (promo) {
+        feedback.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Mã hợp lệ: ${promo.title} (${promo.desc})</span>`;
+      } else {
+        feedback.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-1"></i> Mã không tồn tại hoặc đã hết hạn. Hãy thử: <strong>LEVIETVIP</strong>, <strong>TIECSINHNHAT</strong>, <strong>TRIAN100K</strong></span>`;
+      }
+    }
+
+    function handleBookingSubmit(event) {
+      event.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const roomTypeId = Number(document.getElementById('roomTypeSelect').value);
+      const guestCount = Number(document.getElementById('guestCount').value);
+      const bookingDate = document.getElementById('bookingDate').value;
+      const bookingTime = document.getElementById('bookingTime').value;
+      const promoCode = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+      const note = document.getElementById('bookingNote').value.trim();
+
+      const booking = DB.createBooking({
+        customerName: name,
+        phone,
+        roomTypeId,
+        guestCount,
+        bookingDate,
+        bookingTime,
+        promoCode,
+        note
+      });
+
+      document.getElementById('bookingForm').reset();
+      const alertBox = document.getElementById('successAlert');
+      const msgBox = document.getElementById('successMessage');
+      
+      let promoMsg = promoCode ? ` (Đã áp dụng mã ưu đãi: <strong>${promoCode}</strong>)` : '';
+      msgBox.innerHTML = `Cảm ơn quý khách <strong>${booking.customerName}</strong>! Mã đặt tiệc của quý khách là <span class="badge bg-danger fs-6">${booking.id}</span>${promoMsg}. Lễ tân LeViet sẽ liên hệ số <strong>${booking.phone}</strong> để xác nhận!`;
+      alertBox.classList.remove('d-none');
+      document.getElementById('promoFeedback').innerHTML = '';
+      alertBox.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

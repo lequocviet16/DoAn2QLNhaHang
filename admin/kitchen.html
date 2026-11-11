@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Màn Hình Điều Phối Bếp (KDS) - LeViet Restaurant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <a href="index.html" class="sidebar-brand">
+      <i class="fas fa-crown"></i>
+      <span>LEVIET OPS</span>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="room-map.html"><i class="fas fa-th-large"></i> Sơ Đồ Phòng (Lễ Tân)</a></li>
+      <li><a href="kitchen.html" class="active"><i class="fas fa-fire-burner"></i> Màn Hình Bếp (KDS)</a></li>
+      <li><a href="runner.html"><i class="fas fa-person-walking-luggage"></i> Nhân Viên Bê Món</a></li>
+      <li><a href="housekeeping.html"><i class="fas fa-broom"></i> Nhân Viên Vệ Sinh</a></li>
+      <li><a href="pos.html"><i class="fas fa-cash-register"></i> Thu Ngân & POS</a></li>
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Quản Lý & Báo Cáo</a></li>
+    </ul>
+    <div class="p-3 border-top border-secondary text-center small">
+      <a href="../index.html" class="text-secondary text-decoration-none"><i class="fas fa-external-link-alt me-1"></i> Trang Khách Hàng</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <header class="admin-header">
+      <div class="d-flex align-items-center gap-3">
+        <h4 class="mb-0 fw-bold text-danger"><i class="fas fa-fire-burner me-2"></i> Màn Hình Điều Phối Bếp & Quầy Bar (KDS)</h4>
+        <span class="badge bg-danger">Chế biến tức thì</span>
+      </div>
+      <div class="role-pills">
+        <a href="room-map.html" class="role-pill">Lễ Tân</a>
+        <a href="kitchen.html" class="role-pill active">Bếp KDS</a>
+        <a href="runner.html" class="role-pill">Bê Món</a>
+        <a href="housekeeping.html" class="role-pill">Vệ Sinh</a>
+        <a href="pos.html" class="role-pill">Thu Ngân</a>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      
+      <!-- Kitchen Toolbar -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-2 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <span class="fw-bold small text-secondary">KHU VỰC:</span>
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-dark active" onclick="filterStation('ALL', this)">Tất Cả Trạm</button>
+              <button type="button" class="btn btn-outline-dark" onclick="filterStation('KITCHEN', this)"><i class="fas fa-utensils me-1"></i> Bếp Nóng</button>
+              <button type="button" class="btn btn-outline-dark" onclick="filterStation('BAR', this)"><i class="fas fa-wine-glass me-1"></i> Quầy Pha Chế</button>
+            </div>
+          </div>
+          <div class="text-muted small">
+            <i class="fas fa-sync-alt me-1"></i> Tự động đồng bộ thời gian thực khi Lễ tân gọi món
+          </div>
+        </div>
+      </div>
+
+      <!-- KDS Orders Grid -->
+      <div class="row g-4" id="kdsCardsContainer">
+        <!-- Render các phiếu Order của Bếp -->
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/db.js"></script>
+  <script>
+    let currentStation = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderKDS();
+
+      // Lắng nghe sự kiện đồng bộ từ các Tab khác
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'leviet_last_event') {
+          renderKDS();
+        }
+      });
+    });
+
+    function filterStation(station, btn) {
+      currentStation = station;
+      document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderKDS();
+    }
+
+    function renderKDS() {
+      const orders = DB.getOrders().filter(o => o.status === 'SERVING');
+      const container = document.getElementById('kdsCardsContainer');
+      const rooms = DB.getRooms();
+
+      if (!container) return;
+
+      if (orders.length === 0 || orders.every(o => o.items.length === 0)) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-check-circle fs-1 text-success mb-3 d-block"></i>
+            <h5 class="text-muted">Hiện tại không có món ăn nào đang chờ chế biến!</h5>
+            <p class="small text-muted">Khi Quầy Lễ tân hoặc Khách gọi món, đơn sẽ tự động xuất hiện tại đây.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => {
+        const room = rooms.find(r => r.id === order.roomId) || { name: 'Phòng #' + order.roomId };
+        
+        // Lọc các món của order chưa phục vụ xong (chưa SERVED) hoặc hiển thị đầy đủ
+        let items = order.items;
+        if (currentStation !== 'ALL') {
+          // Lấy thông tin station từ menu item
+          items = items.filter(item => {
+            const mi = DB.getMenuItemById(item.menuItemId);
+            return mi && mi.station === currentStation;
+          });
+        }
+
+        if (items.length === 0) return '';
+
+        return `
+          <div class="col-lg-6 col-xl-4">
+            <div class="kds-card">
+              <div class="kds-card-header">
+                <div>
+                  <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-door-open text-primary me-1"></i> ${room.name}</h5>
+                  <small class="text-muted">Đơn: ${order.id} - Khách: ${order.customerName}</small>
+                </div>
+                <span class="badge bg-danger p-2"><i class="fas fa-clock me-1"></i> ${new Date(order.checkinTime).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
+              </div>
+              <div class="p-2">
+                ${items.map(item => {
+                  let actionBtn = '';
+                  let statusBadge = '';
+
+                  if (item.status === 'PENDING') {
+                    statusBadge = '<span class="badge bg-secondary">Chờ Bếp</span>';
+                    actionBtn = `<button class="btn btn-warning btn-sm fw-bold" onclick="changeStatus('${order.id}', ${item.id}, 'COOKING')"><i class="fas fa-fire me-1"></i> Bắt Đầu Nấu</button>`;
+                  } else if (item.status === 'COOKING') {
+                    statusBadge = '<span class="badge bg-warning text-dark">Đang Nấu</span>';
+                    actionBtn = `<button class="btn btn-success btn-sm fw-bold" onclick="changeStatus('${order.id}', ${item.id}, 'COOKED')"><i class="fas fa-check me-1"></i> Nấu Xong (Báo Bê)</button>`;
+                  } else if (item.status === 'COOKED') {
+                    statusBadge = '<span class="badge bg-info text-dark">Chờ Runner Bê</span>';
+                    actionBtn = `<span class="small text-muted fst-italic"><i class="fas fa-spinner fa-spin me-1"></i> Đang chờ bê...</span>`;
+                  } else if (item.status === 'SERVED') {
+                    statusBadge = '<span class="badge bg-success">Đã Lên Bàn</span>';
+                    actionBtn = `<i class="fas fa-check-double text-success fs-5"></i>`;
+                  }
+
+                  return `
+                    <div class="kds-item-row">
+                      <div>
+                        <div class="fw-bold text-dark fs-6">${item.name} <span class="badge bg-dark rounded-pill ms-1">x${item.quantity}</span></div>
+                        ${item.note ? `<small class="text-danger"><i class="fas fa-comment-dots me-1"></i>${item.note}</small>` : ''}
+                        <div>${statusBadge}</div>
+                      </div>
+                      <div>
+                        ${actionBtn}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changeStatus(orderId, itemId, newStatus) {
+      DB.updateDishStatus(orderId, itemId, newStatus);
+      renderKDS();
+    }
+  </script>
+</body>
+</html>

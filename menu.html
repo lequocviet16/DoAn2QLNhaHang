@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thực Đơn Ẩm Thực Đặc Sắc - Nhà hàng LeViet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-leviet sticky-top">
+    <div class="container">
+      <a class="navbar-brand navbar-brand-leviet" href="index.html">
+        <i class="fas fa-crown"></i>
+        <span>LEVIET RESTAURANT</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="index.html">Trang Chủ</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="rooms.html">Các Loại Phòng</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet active" href="menu.html">Thực Đơn</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="booking.html">Đặt Bàn / Phòng</a></li>
+          <li class="nav-item ms-lg-3">
+            <a href="admin/index.html" class="btn btn-outline-gold btn-sm"><i class="fas fa-user-shield me-1"></i> Quản Trị</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Banner -->
+  <header class="py-5 bg-dark text-white text-center" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400') center/cover;">
+    <div class="container py-3">
+      <h1 class="fw-bold text-warning">Thực Đơn Tinh Hoa Ẩm Thực (26+ Món)</h1>
+      <p class="lead mb-0">Hương vị nguyên bản từ nguyên liệu tươi sống cao cấp: Bò Wagyu, Tôm hùm Nha Trang, Bê bản Mường, Rượu vang Bordeaux.</p>
+    </div>
+  </header>
+
+  <!-- Menu Content -->
+  <main class="py-5">
+    <div class="container">
+      
+      <!-- Controls: Category Filters & Search -->
+      <div class="row g-3 mb-4 align-items-center justify-content-between">
+        <div class="col-lg-8">
+          <div class="d-flex flex-wrap gap-2" id="categoryFilters">
+            <!-- Render 8 danh mục từ db.js -->
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Tìm tên món ăn, nguyên liệu..." oninput="handleSearch()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Grid -->
+      <div class="row g-4" id="menuGrid">
+        <!-- Render 26+ món ăn -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-leviet">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2026 Nhà hàng LeViet - Đồ án 2 Thiết kế web cơ bản (UTEHY).</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    let currentCategoryId = 0;
+    let currentSearchTerm = '';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      renderMenu();
+    });
+
+    function renderCategories() {
+      const categories = DB.getCategories();
+      const container = document.getElementById('categoryFilters');
+      if (!container || !categories) return;
+
+      const buttonsHtml = categories.map(cat => `
+        <button class="btn btn-outline-secondary btn-sm" onclick="filterCategory(${cat.id}, this)">
+          <i class="fas ${cat.icon} me-1"></i> ${cat.name}
+        </button>
+      `).join('');
+      container.innerHTML = `<button class="btn btn-gold btn-sm active" onclick="filterCategory(0, this)">Tất Cả (26)</button>` + buttonsHtml;
+    }
+
+    function filterCategory(catId, btn) {
+      currentCategoryId = catId;
+      document.querySelectorAll('#categoryFilters button').forEach(b => {
+        b.classList.remove('btn-gold', 'active');
+        b.classList.add('btn-outline-secondary');
+      });
+      btn.classList.remove('btn-outline-secondary');
+      btn.classList.add('btn-gold', 'active');
+      renderMenu();
+    }
+
+    function handleSearch() {
+      currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+      renderMenu();
+    }
+
+    function renderMenu() {
+      let items = DB.getMenuItems();
+      if (currentCategoryId !== 0) {
+        items = items.filter(i => i.catId === currentCategoryId);
+      }
+      if (currentSearchTerm) {
+        items = items.filter(i => i.name.toLowerCase().includes(currentSearchTerm) || i.desc.toLowerCase().includes(currentSearchTerm));
+      }
+
+      const grid = document.getElementById('menuGrid');
+      if (!grid) return;
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-utensils fs-1 text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">Không tìm thấy món ăn phù hợp với từ khóa "${currentSearchTerm}"</h5>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => `
+        <div class="col-md-6 col-lg-4 col-xl-3">
+          <div class="food-card shadow-sm">
+            <div class="card-img-wrap">
+              <img src="${item.img}" alt="${item.name}">
+              ${item.isHot ? '<span class="card-badge bg-danger"><i class="fas fa-fire me-1"></i> Đặc Sản</span>' : ''}
+            </div>
+            <div class="card-body p-3 d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="fw-bold mb-0 text-dark">${item.name}</h6>
+                <span class="badge ${item.station === 'BAR' ? 'bg-info text-dark' : 'bg-secondary'} small" style="font-size:0.65rem;">
+                  ${item.station === 'BAR' ? 'Quầy Bar' : 'Bếp Nóng'}
+                </span>
+              </div>
+              <p class="text-muted small mb-3 flex-grow-1" style="font-size:0.8rem;">${item.desc}</p>
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <span class="fw-bold text-danger fs-6">${(item.price).toLocaleString()} đ</span>
+                <a href="booking.html" class="btn btn-outline-gold btn-sm" style="font-size:0.8rem;">
+                  <i class="fas fa-calendar-plus me-1"></i> Đặt Tiệc
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

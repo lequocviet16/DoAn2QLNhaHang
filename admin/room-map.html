@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Phòng & Quầy Lễ Tân - LeViet Restaurant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <a href="index.html" class="sidebar-brand">
+      <i class="fas fa-crown"></i>
+      <span>LEVIET OPS</span>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="room-map.html" class="active"><i class="fas fa-th-large"></i> Sơ Đồ Phòng (Lễ Tân)</a></li>
+      <li><a href="kitchen.html"><i class="fas fa-fire-burner"></i> Màn Hình Bếp (KDS)</a></li>
+      <li><a href="runner.html"><i class="fas fa-person-walking-luggage"></i> Nhân Viên Bê Món</a></li>
+      <li><a href="housekeeping.html"><i class="fas fa-broom"></i> Nhân Viên Vệ Sinh</a></li>
+      <li><a href="pos.html"><i class="fas fa-cash-register"></i> Thu Ngân & POS</a></li>
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Quản Lý & Báo Cáo</a></li>
+    </ul>
+    <div class="p-3 border-top border-secondary text-center small">
+      <a href="../index.html" class="text-secondary text-decoration-none"><i class="fas fa-external-link-alt me-1"></i> Trang Khách Hàng</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <!-- Top Header -->
+    <header class="admin-header">
+      <div class="d-flex align-items-center gap-3">
+        <h4 class="mb-0 fw-bold"><i class="fas fa-concierge-bell text-primary me-2"></i> Quầy Lễ Tân - Sơ Đồ Phòng (5 Tầng)</h4>
+        <span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fas fa-circle text-success small me-1"></i> Trực Tuyến</span>
+      </div>
+      <!-- Role Quick Switcher -->
+      <div class="role-pills">
+        <a href="room-map.html" class="role-pill active">Lễ Tân</a>
+        <a href="kitchen.html" class="role-pill">Bếp KDS</a>
+        <a href="runner.html" class="role-pill">Bê Món</a>
+        <a href="housekeeping.html" class="role-pill">Vệ Sinh</a>
+        <a href="pos.html" class="role-pill">Thu Ngân</a>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      
+      <!-- Status Legend & Filter -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div class="d-flex flex-wrap align-items-center gap-4">
+            <span class="fw-bold small text-secondary">CHÚ THÍCH TRẠNG THÁI:</span>
+            <span class="d-flex align-items-center gap-2 small">
+              <span class="rounded-circle" style="width:12px; height:12px; background-color: var(--color-available);"></span> Trống / Sẵn sàng
+            </span>
+            <span class="d-flex align-items-center gap-2 small">
+              <span class="rounded-circle" style="width:12px; height:12px; background-color: var(--color-occupied);"></span> Đang có khách
+            </span>
+            <span class="d-flex align-items-center gap-2 small">
+              <span class="rounded-circle" style="width:12px; height:12px; background-color: var(--color-needs-cleaning);"></span> Cần dọn dẹp
+            </span>
+            <span class="d-flex align-items-center gap-2 small">
+              <span class="rounded-circle" style="width:12px; height:12px; background-color: var(--color-cleaning);"></span> Đang dọn dẹp
+            </span>
+          </div>
+
+          <!-- Floor Filter (5 Tầng) -->
+          <div class="d-flex align-items-center gap-2">
+            <label class="small fw-bold text-secondary text-nowrap">Xem Tầng:</label>
+            <select id="floorSelect" class="form-select form-select-sm" onchange="renderRoomMap()">
+              <option value="0">Tất Cả 5 Tầng</option>
+              <option value="1">Tầng 1 - Bàn Sảnh Chung</option>
+              <option value="2">Tầng 2 - Phòng Gia Đình & Nhật Bản</option>
+              <option value="3">Tầng 3 - Phòng VIP & Hầm Rượu</option>
+              <option value="4">Tầng 4 - Hội Trường Lớn</option>
+              <option value="5">Tầng 5 - Rooftop Sky View</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sơ đồ phòng Grid -->
+      <div id="roomMapGrid" class="room-grid">
+        <!-- Render bằng JavaScript -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal: Check-in / Mở phòng -->
+  <div class="modal fade" id="checkinModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="checkinModalTitle"><i class="fas fa-key me-2"></i> Mở Phòng Cho Khách</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="handleCheckin(event)">
+          <div class="modal-body">
+            <input type="hidden" id="checkinRoomId">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tên khách hàng / Đại diện bàn</label>
+              <input type="text" id="checkinCustName" class="form-control" required placeholder="Ví dụ: Anh Hoàng Dũng">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Số điện thoại liên hệ</label>
+              <input type="tel" id="checkinPhone" class="form-control" placeholder="0988...">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Mã ưu đãi / Khuyến mãi (Nếu có)</label>
+              <input type="text" id="checkinPromo" class="form-control text-uppercase" placeholder="LEVIETVIP, TIECSINHNHAT, TRIAN100K...">
+            </div>
+            <div class="alert alert-info small mb-0">
+              <i class="fas fa-info-circle me-1"></i> Sau khi mở phòng, phòng sẽ chuyển sang màu cam <strong>Đang Phục Vụ</strong> và bắt đầu tính giờ sử dụng phòng.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-check me-1"></i> Xác Nhận Mở Phòng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Chi tiết phòng đang có khách (Xem đơn & Gọi món) -->
+  <div class="modal fade" id="roomDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold text-warning" id="roomDetailTitle">Phòng ...</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+            <div>
+              <span class="d-block small text-muted">Khách hàng:</span>
+              <strong id="detailCustInfo" class="fs-6">Anh Trần Hoàng - 0988123456</strong>
+            </div>
+            <div>
+              <span class="d-block small text-muted">Thời gian vào:</span>
+              <strong id="detailCheckinTime">18:00</strong>
+            </div>
+            <div>
+              <span class="d-block small text-muted">Mã Đơn hàng:</span>
+              <span id="detailOrderId" class="badge bg-secondary">ORD-...</span>
+            </div>
+          </div>
+
+          <h6 class="fw-bold mb-2">Danh sách món ăn đã gọi:</h6>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Tên món</th>
+                  <th class="text-center" style="width: 80px;">Số lượng</th>
+                  <th class="text-end" style="width: 120px;">Đơn giá</th>
+                  <th class="text-center" style="width: 150px;">Trạng thái bếp</th>
+                </tr>
+              </thead>
+              <tbody id="detailItemList">
+                <!-- Render món -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Khu vực gọi thêm món nhanh -->
+          <div class="p-3 border rounded bg-white mt-3">
+            <h6 class="fw-bold mb-2 text-primary"><i class="fas fa-plus-circle me-1"></i> Gọi Thêm Món Vào Phòng Này:</h6>
+            <div class="row g-2 align-items-center">
+              <div class="col-md-6">
+                <select id="quickAddMenuItem" class="form-select form-select-sm">
+                  <!-- Render 26 món ăn -->
+                </select>
+              </div>
+              <div class="col-md-3">
+                <input type="number" id="quickAddQty" class="form-control form-control-sm" value="1" min="1" placeholder="Số lượng">
+              </div>
+              <div class="col-md-3">
+                <button type="button" class="btn btn-primary btn-sm w-100 fw-bold" onclick="addDishToCurrentOrder()">
+                  <i class="fas fa-paper-plane me-1"></i> Gửi Xuống Bếp
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+          <div>
+            <a id="btnGoToPos" href="#" class="btn btn-success fw-bold">
+              <i class="fas fa-receipt me-1"></i> Chuyển Sang Thanh Toán
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/db.js"></script>
+  <script>
+    let activeModalRoom = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderRoomMap();
+      loadMenuItemsDropdown();
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'leviet_last_event') {
+          renderRoomMap();
+        }
+      });
+    });
+
+    function renderRoomMap() {
+      const selectedFloor = Number(document.getElementById('floorSelect').value);
+      let rooms = DB.getRooms();
+      if (selectedFloor !== 0) {
+        rooms = rooms.filter(r => r.floor === selectedFloor);
+      }
+
+      const grid = document.getElementById('roomMapGrid');
+      if (!grid) return;
+
+      const roomTypes = DB.getRoomTypes();
+
+      grid.innerHTML = rooms.map(room => {
+        const type = roomTypes.find(t => t.id === room.typeId) || { name: 'Thường', badge: 'Standard' };
+        
+        let statusClass = 'status-available';
+        let statusBadge = '<span class="badge bg-success">Trống</span>';
+        let actionHint = 'Bấm để mở phòng';
+
+        if (room.status === 'OCCUPIED') {
+          statusClass = 'status-occupied';
+          statusBadge = '<span class="badge bg-warning text-dark">Có Khách</span>';
+          actionHint = 'Xem đơn & Gọi món';
+        } else if (room.status === 'NEEDS_CLEANING') {
+          statusClass = 'status-needs-cleaning';
+          statusBadge = '<span class="badge bg-danger">Cần Dọn</span>';
+          actionHint = 'Chờ vệ sinh dọn dẹp';
+        } else if (room.status === 'CLEANING') {
+          statusClass = 'status-cleaning';
+          statusBadge = '<span class="badge bg-warning text-dark">Đang Dọn</span>';
+          actionHint = 'Nhân viên đang dọn...';
+        }
+
+        return `
+          <div class="room-box ${statusClass}" onclick="handleRoomClick(${room.id})">
+            <div>
+              <div class="room-box-header">
+                <span class="room-box-title">${room.name}</span>
+                ${statusBadge}
+              </div>
+              <div class="small text-muted mb-1">${type.name}</div>
+              <div class="small text-secondary">Tầng ${room.floor} - Sức chứa: ${type.capacity}</div>
+            </div>
+            <div class="room-box-footer">
+              <span class="small fst-italic text-muted">${actionHint}</span>
+              <i class="fas fa-chevron-right small text-muted"></i>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleRoomClick(roomId) {
+      const room = DB.getRoomById(roomId);
+      if (!room) return;
+
+      if (room.status === 'AVAILABLE') {
+        document.getElementById('checkinRoomId').value = room.id;
+        document.getElementById('checkinModalTitle').innerHTML = `<i class="fas fa-key me-2"></i> Mở Phòng: ${room.name}`;
+        new bootstrap.Modal(document.getElementById('checkinModal')).show();
+      } else if (room.status === 'OCCUPIED') {
+        openRoomDetailModal(room);
+      } else if (room.status === 'NEEDS_CLEANING') {
+        alert(`${room.name} vừa được trả và đang chờ Nhân viên Vệ sinh dọn dẹp. Vui lòng mở trang "Nhân Viên Vệ Sinh" để xử lý!`);
+      } else if (room.status === 'CLEANING') {
+        alert(`${room.name} đang được Nhân viên Vệ sinh khử trùng và dọn dẹp. Vui lòng chờ vài phút.`);
+      }
+    }
+
+    function handleCheckin(e) {
+      e.preventDefault();
+      const roomId = Number(document.getElementById('checkinRoomId').value);
+      const custName = document.getElementById('checkinCustName').value.trim();
+      const phone = document.getElementById('checkinPhone').value.trim();
+      const promoCode = document.getElementById('checkinPromo').value.trim().toUpperCase();
+
+      DB.createOrderForRoom(roomId, custName, phone, promoCode);
+
+      bootstrap.Modal.getInstance(document.getElementById('checkinModal')).hide();
+      renderRoomMap();
+    }
+
+    function openRoomDetailModal(room) {
+      activeModalRoom = room;
+      const order = DB.getOrderById(room.currentOrderId);
+      if (!order) return;
+
+      document.getElementById('roomDetailTitle').innerText = `${room.name} (Đang phục vụ)`;
+      document.getElementById('detailCustInfo').innerText = `${order.customerName} - ${order.phone || 'Không có SĐT'}`;
+      document.getElementById('detailCheckinTime').innerText = new Date(order.checkinTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('detailOrderId').innerText = order.id;
+      document.getElementById('btnGoToPos').href = `pos.html?roomId=${room.id}`;
+
+      const tbody = document.getElementById('detailItemList');
+      if (order.items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small py-3">Chưa có món nào. Vui lòng chọn món gửi xuống bếp bên dưới.</td></tr>`;
+      } else {
+        tbody.innerHTML = order.items.map(item => {
+          let statusLabel = '<span class="badge bg-secondary">Chờ Bếp</span>';
+          if (item.status === 'COOKING') statusLabel = '<span class="badge bg-warning text-dark">Đang Nấu</span>';
+          if (item.status === 'COOKED') statusLabel = '<span class="badge bg-info text-dark">Đã Xong (Chờ bê)</span>';
+          if (item.status === 'SERVED') statusLabel = '<span class="badge bg-success">Đã Bê Lên Bàn</span>';
+
+          return `
+            <tr>
+              <td><strong>${item.name}</strong> ${item.note ? `<br><small class="text-muted">(${item.note})</small>` : ''}</td>
+              <td class="text-center fw-bold">${item.quantity}</td>
+              <td class="text-end">${(item.price * item.quantity).toLocaleString()} đ</td>
+              <td class="text-center">${statusLabel}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      new bootstrap.Modal(document.getElementById('roomDetailModal')).show();
+    }
+
+    function loadMenuItemsDropdown() {
+      const select = document.getElementById('quickAddMenuItem');
+      const items = DB.getMenuItems();
+      if (!select || !items) return;
+      select.innerHTML = items.map(i => `
+        <option value="${i.id}">${i.name} - ${(i.price).toLocaleString()} đ</option>
+      `).join('');
+    }
+
+    function addDishToCurrentOrder() {
+      if (!activeModalRoom) return;
+      const select = document.getElementById('quickAddMenuItem');
+      const qtyInput = document.getElementById('quickAddQty');
+      const itemId = Number(select.value);
+      const qty = Number(qtyInput.value) || 1;
+
+      const menuItem = DB.getMenuItemById(itemId);
+      if (!menuItem) return;
+
+      DB.addItemsToOrder(activeModalRoom.currentOrderId, [{
+        menuItemId: menuItem.id,
+        name: menuItem.name,
+        price: menuItem.price,
+        quantity: qty
+      }]);
+
+      openRoomDetailModal(activeModalRoom);
+      alert(`Đã gửi "${menuItem.name} x ${qty}" xuống Màn hình Bếp (KDS) thành công!`);
+    }
+  </script>
+</body>
+</html>

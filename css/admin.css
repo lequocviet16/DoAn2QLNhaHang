@@ -1,0 +1,254 @@
+/* ========================================================
+   LEVIET RESTAURANT - ADMIN & INTERNAL OPS STYLES (admin.css)
+   Giao diện vận hành: Lễ tân, Bếp KDS, Bê món, Vệ sinh, POS
+   ======================================================== */
+
+:root {
+  --admin-sidebar-bg: #1e2229;
+  --admin-sidebar-hover: #2d333b;
+  --admin-header-bg: #ffffff;
+  --admin-content-bg: #f4f6f9;
+  --color-available: #28a745;
+  --color-occupied: #fd7e14;
+  --color-needs-cleaning: #dc3545;
+  --color-cleaning: #ffc107;
+}
+
+body.admin-body {
+  background-color: var(--admin-content-bg);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: 260px;
+  background-color: var(--admin-sidebar-bg);
+  color: #adb5bd;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar .sidebar-brand {
+  padding: 20px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #d4af37;
+  border-bottom: 1px solid #2d333b;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sidebar .nav-menu {
+  list-style: none;
+  padding: 15px 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.admin-sidebar .nav-menu li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #c2c7d0;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.admin-sidebar .nav-menu li a:hover,
+.admin-sidebar .nav-menu li a.active {
+  background-color: var(--admin-sidebar-hover);
+  color: #ffffff;
+  border-left-color: #d4af37;
+}
+
+.admin-sidebar .nav-menu li a .badge {
+  margin-left: auto;
+}
+
+/* MAIN CONTENT */
+.admin-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-header {
+  height: 65px;
+  background-color: var(--admin-header-bg);
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+}
+
+.admin-container {
+  padding: 25px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* ROLE CHANGER BAR */
+.role-pills {
+  display: flex;
+  gap: 8px;
+  background: #e9ecef;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.role-pill {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  color: #495057;
+  transition: all 0.2s;
+}
+
+.role-pill.active {
+  background-color: #1e2229;
+  color: #d4af37;
+}
+
+/* ROOM CARDS (SƠ ĐỒ PHÒNG) */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+  margin-top: 15px;
+}
+
+.room-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  border-top: 5px solid #6c757d;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+}
+
+.room-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+}
+
+.room-box.status-available {
+  border-top-color: var(--color-available);
+}
+.room-box.status-occupied {
+  border-top-color: var(--color-occupied);
+  background-color: #fffdf9;
+}
+.room-box.status-needs-cleaning {
+  border-top-color: var(--color-needs-cleaning);
+  background-color: #fff8f8;
+}
+.room-box.status-cleaning {
+  border-top-color: var(--color-cleaning);
+  background-color: #fffdf2;
+}
+
+.room-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.room-box-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.room-box-badge {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.room-box-footer {
+  font-size: 0.85rem;
+  color: #6c757d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  border-top: 1px dashed #e9ecef;
+  padding-top: 8px;
+}
+
+/* KDS (KITCHEN DISPLAY SYSTEM) */
+.kds-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 6px solid #fd7e14;
+  margin-bottom: 18px;
+}
+
+.kds-card-header {
+  padding: 12px 18px;
+  background-color: #fafbfc;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kds-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.kds-item-row:last-child {
+  border-bottom: none;
+}
+
+/* RUNNER & HOUSEKEEPING CARDS */
+.task-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* VIETQR MODAL */
+.qr-container {
+  text-align: center;
+  padding: 15px;
+}
+
+.qr-image {
+  max-width: 250px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin: 15px auto;
+}

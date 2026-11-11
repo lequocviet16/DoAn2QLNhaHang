@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Không Gian & Loại Phòng - Nhà hàng LeViet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-leviet sticky-top">
+    <div class="container">
+      <a class="navbar-brand navbar-brand-leviet" href="index.html">
+        <i class="fas fa-crown"></i>
+        <span>LEVIET RESTAURANT</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="index.html">Trang Chủ</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet active" href="rooms.html">Các Loại Phòng</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="menu.html">Thực Đơn</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-leviet" href="booking.html">Đặt Bàn / Phòng</a></li>
+          <li class="nav-item ms-lg-3">
+            <a href="admin/index.html" class="btn btn-outline-gold btn-sm"><i class="fas fa-user-shield me-1"></i> Quản Trị</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Banner -->
+  <header class="py-5 bg-dark text-white text-center" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400') center/cover;">
+    <div class="container py-4">
+      <h1 class="fw-bold text-warning">Hệ Thống 7 Hạng Phòng Tiệc Đẳng Cấp</h1>
+      <p class="lead mb-0">Từ hầm rượu vang bí ẩn, phòng Nhật Bản Tatami, phòng VIP Hoàng Gia cho đến Rooftop ngắm toàn cảnh thành phố.</p>
+    </div>
+  </header>
+
+  <!-- Room Categories Grid -->
+  <main class="py-5">
+    <div class="container">
+      <div class="row g-4" id="allRoomsContainer">
+        <!-- Render 7 loại phòng từ db.js -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-leviet">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2026 Nhà hàng LeViet - Đồ án 2 Thiết kế web cơ bản (UTEHY).</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const roomTypes = DB.getRoomTypes();
+      const container = document.getElementById('allRoomsContainer');
+
+      // Bộ tiện ích riêng cho từng hạng phòng
+      const amenitiesMap = {
+        1: ['Dàn Karaoke JBL chọn bài tablet', 'Hệ thống khử mùi cao cấp', 'Phục vụ riêng tại phòng', 'Sofa da thư giãn'],
+        2: ['Bàn tròn xoay kính cường lực', 'Ánh sáng vàng ấm cúng', 'Có ghế trẻ em theo yêu cầu', 'Menu gia đình ưu đãi'],
+        3: ['Tủ bảo quản rượu vang 16°C', 'Bàn trà & gạt tàn Cigar chuyên dụng', 'Tường ốp gỗ sồi cổ điển', 'Ly pha lê Riedel'],
+        4: ['Chiếu Tatami tự nhiên êm ái', 'Vách trượt Shoji cách âm', 'Bàn trà bệt phong cách Zen', 'Trang phục Kimono check-in'],
+        5: ['View toàn cảnh ngắm hoàng hôn & phố đêm', 'Không gian mở đón gió trời', 'Đèn dây ấm áp lãng mạn', 'Phục vụ cocktail & nướng BBQ'],
+        6: ['Màn hình chiếu LED 150 inch', 'Âm thanh micro không dây hội thảo', 'Sân khấu mini cho phát biểu', 'Bố trí bàn tiệc linh hoạt'],
+        7: ['Không gian sảnh tầng 1 thoáng đãng', 'Miễn phí 100% tiền giờ phòng', 'Gần quầy pha chế & tráng miệng', 'Phù hợp tiếp khách nhanh']
+      };
+
+      if (container && roomTypes) {
+        container.innerHTML = roomTypes.map((type) => {
+          const amenities = amenitiesMap[type.id] || ['Không gian riêng tư', 'Điều hòa 2 chiều', 'Trang bị wifi tốc độ cao'];
+          
+          return `
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 overflow-hidden">
+                <div class="row g-0 h-100">
+                  <div class="col-md-5">
+                    <img src="${type.img}" class="img-fluid h-100 w-100" style="object-fit:cover; min-height: 260px;" alt="${type.name}">
+                  </div>
+                  <div class="col-md-7 d-flex flex-column p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-danger">${type.badge}</span>
+                      <span class="text-muted small"><i class="fas fa-users text-warning me-1"></i> ${type.capacity}</span>
+                    </div>
+                    <h4 class="fw-bold mb-2">${type.name}</h4>
+                    <p class="text-muted small mb-3">${type.desc}</p>
+                    
+                    <h6 class="small fw-bold text-secondary mb-2">Tiện ích đặc quyền:</h6>
+                    <ul class="list-unstyled small text-muted mb-4">
+                      ${amenities.map(f => `<li><i class="fas fa-check text-success me-2"></i>${f}</li>`).join('')}
+                    </ul>
+
+                    <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
+                      <div>
+                        <span class="d-block small text-muted">Giá thuê phòng</span>
+                        <strong class="text-danger fs-5">${type.hourlyRate > 0 ? (type.hourlyRate).toLocaleString() + ' đ/h' : 'Miễn phí'}</strong>
+                      </div>
+                      <a href="booking.html?roomTypeId=${type.id}" class="btn btn-gold btn-sm"><i class="fas fa-calendar-check me-1"></i> Đặt Phòng Này</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    });
+  </script>
+</body>
+</html>

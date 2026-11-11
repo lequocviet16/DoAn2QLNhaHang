@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Doanh Thu & Quản Trị - LeViet Restaurant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <a href="index.html" class="sidebar-brand">
+      <i class="fas fa-crown"></i>
+      <span>LEVIET OPS</span>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="room-map.html"><i class="fas fa-th-large"></i> Sơ Đồ Phòng (Lễ Tân)</a></li>
+      <li><a href="kitchen.html"><i class="fas fa-fire-burner"></i> Màn Hình Bếp (KDS)</a></li>
+      <li><a href="runner.html"><i class="fas fa-person-walking-luggage"></i> Nhân Viên Bê Món</a></li>
+      <li><a href="housekeeping.html"><i class="fas fa-broom"></i> Nhân Viên Vệ Sinh</a></li>
+      <li><a href="pos.html"><i class="fas fa-cash-register"></i> Thu Ngân & POS</a></li>
+      <li><a href="dashboard.html" class="active"><i class="fas fa-chart-line"></i> Quản Lý & Báo Cáo</a></li>
+    </ul>
+    <div class="p-3 border-top border-secondary text-center small">
+      <a href="../index.html" class="text-secondary text-decoration-none"><i class="fas fa-external-link-alt me-1"></i> Trang Khách Hàng</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <header class="admin-header">
+      <div class="d-flex align-items-center gap-3">
+        <h4 class="mb-0 fw-bold"><i class="fas fa-chart-line text-warning me-2"></i> Báo Cáo Doanh Thu & Quản Lý Nhà Hàng</h4>
+        <span class="badge bg-dark">Quản lý cấp cao</span>
+      </div>
+      <div>
+        <button class="btn btn-outline-danger btn-sm" onclick="resetDemoData()">
+          <i class="fas fa-undo me-1"></i> Đặt Lại Dữ Liệu Mẫu (Seed Data)
+        </button>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      
+      <!-- Metrics Overview -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm p-3 border-start border-success border-4">
+            <span class="text-muted small fw-bold text-uppercase">Doanh Thu Thu Được</span>
+            <h3 class="fw-bold text-success mb-0" id="statRevenue">0 đ</h3>
+            <small class="text-muted" id="statInvoiceCount">0 hóa đơn</small>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm p-3 border-start border-warning border-4">
+            <span class="text-muted small fw-bold text-uppercase">Phòng Đang Phục Vụ</span>
+            <h3 class="fw-bold text-warning mb-0" id="statServingRooms">0</h3>
+            <small class="text-muted">Đang có khách ngồi</small>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm p-3 border-start border-danger border-4">
+            <span class="text-muted small fw-bold text-uppercase">Phòng Chờ Vệ Sinh</span>
+            <h3 class="fw-bold text-danger mb-0" id="statCleaningRooms">0</h3>
+            <small class="text-muted">Cần dọn dẹp</small>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm p-3 border-start border-primary border-4">
+            <span class="text-muted small fw-bold text-uppercase">Phòng Sẵn Sàng</span>
+            <h3 class="fw-bold text-primary mb-0" id="statAvailableRooms">0</h3>
+            <small class="text-muted" id="statTotalRooms">trên tổng 0 phòng</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+              <i class="fas fa-chart-bar text-primary me-2"></i> Xu Hướng Doanh Thu Tuần Này (VNĐ)
+            </div>
+            <div class="card-body">
+              <canvas id="revenueChart" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+              <i class="fas fa-chart-pie text-danger me-2"></i> Tỷ Lệ Sử Dụng Phòng
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+              <canvas id="roomPieChart" style="max-height: 250px;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Quản lý Khuyến mãi & Ưu đãi -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-ticket text-danger me-2"></i> Các Chương Trình Khuyến Mãi Đang Kích Hoạt</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Mã Code</th>
+                  <th>Tên Chương Trình</th>
+                  <th>Loại Giảm</th>
+                  <th>Điều Kiện Đơn Tối Thiểu</th>
+                  <th>Hạn Sử Dụng</th>
+                  <th>Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="promoTableBody">
+                <!-- Render bằng JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Management: Danh Sách Món Ăn -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-utensils text-warning me-2"></i> Quản Lý Danh Mục Món Ăn (26+ Món)</h5>
+          <button class="btn btn-primary btn-sm fw-bold" onclick="openAddMenuModal()">
+            <i class="fas fa-plus me-1"></i> Thêm Món Mới
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 70px;">Ảnh</th>
+                  <th>Tên Món Ăn</th>
+                  <th>Danh Mục</th>
+                  <th class="text-end">Đơn Giá</th>
+                  <th class="text-center">Trạm Nấu</th>
+                  <th class="text-center" style="width: 120px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="menuTableBody">
+                <!-- Render món ăn -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal Thêm/Sửa Món -->
+  <div class="modal fade" id="menuModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="menuModalTitle">Thêm Món Ăn</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form onsubmit="handleSaveMenu(event)">
+          <div class="modal-body">
+            <input type="hidden" id="menuItemId">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tên món ăn <span class="text-danger">*</span></label>
+              <input type="text" id="menuItemName" class="form-control" required placeholder="Ví dụ: Bò sốt tiêu đen">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+              <select id="menuItemCat" class="form-select" required>
+                <!-- Render cats -->
+              </select>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">Đơn giá (VNĐ) <span class="text-danger">*</span></label>
+                <input type="number" id="menuItemPrice" class="form-control" required min="1000" step="1000">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Trạm chế biến</label>
+                <select id="menuItemStation" class="form-select">
+                  <option value="KITCHEN">Bếp Nóng</option>
+                  <option value="BAR">Quầy Bar / Pha Chế</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Mô tả ngắn</label>
+              <textarea id="menuItemDesc" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary fw-bold">Lưu Món Ăn</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/db.js"></script>
+  <script>
+    let myRevenueChart = null;
+    let myPieChart = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+      initCharts();
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'leviet_last_event') {
+          renderDashboard();
+          updateCharts();
+        }
+      });
+    });
+
+    function renderDashboard() {
+      const stats = DB.getStats();
+      document.getElementById('statRevenue').innerText = `${stats.totalRevenue.toLocaleString()} đ`;
+      document.getElementById('statInvoiceCount').innerText = `${stats.invoiceCount} hóa đơn đã thanh toán`;
+      document.getElementById('statServingRooms').innerText = stats.servingRoomsCount;
+      document.getElementById('statCleaningRooms').innerText = stats.cleaningRoomsCount;
+      document.getElementById('statAvailableRooms').innerText = stats.availableRoomsCount;
+      document.getElementById('statTotalRooms').innerText = `trên tổng số ${stats.totalRooms} phòng`;
+
+      renderPromoTable();
+      renderMenuTable();
+    }
+
+    function renderPromoTable() {
+      const promos = DB.getPromotions();
+      const tbody = document.getElementById('promoTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = promos.map(p => `
+        <tr>
+          <td><span class="badge bg-danger fs-6">${p.code}</span></td>
+          <td>
+            <strong>${p.title}</strong>
+            <div class="small text-muted">${p.desc}</div>
+          </td>
+          <td><span class="badge bg-warning text-dark">${p.discountType === 'PERCENT' ? 'Giảm ' + p.discountValue + '%' : 'Giảm ' + (p.discountValue).toLocaleString() + ' đ'}</span></td>
+          <td>${(p.minBill).toLocaleString()} đ</td>
+          <td><small class="text-secondary">${p.validUntil}</small></td>
+          <td><span class="badge bg-success">Đang Kích Hoạt</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderMenuTable() {
+      const items = DB.getMenuItems();
+      const cats = DB.getCategories();
+      const tbody = document.getElementById('menuTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = items.map(item => {
+        const cat = cats.find(c => c.id === item.catId) || { name: 'Khác' };
+        return `
+          <tr>
+            <td><img src="${item.img || 'https://via.placeholder.com/50'}" class="rounded" style="width:50px; height:50px; object-fit:cover;"></td>
+            <td>
+              <strong>${item.name}</strong>
+              <div class="small text-muted">${item.desc || ''}</div>
+            </td>
+            <td><span class="badge bg-secondary">${cat.name}</span></td>
+            <td class="text-end fw-bold text-danger">${(item.price).toLocaleString()} đ</td>
+            <td class="text-center">
+              <span class="badge ${item.station === 'BAR' ? 'bg-info text-dark' : 'bg-warning text-dark'}">
+                ${item.station === 'BAR' ? 'Quầy Bar' : 'Bếp Nóng'}
+              </span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteMenu(${item.id})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function initCharts() {
+      const ctxRev = document.getElementById('revenueChart').getContext('2d');
+      myRevenueChart = new Chart(ctxRev, {
+        type: 'bar',
+        data: {
+          labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'],
+          datasets: [{
+            label: 'Doanh thu (VNĐ)',
+            data: [4200000, 3100000, 5800000, 6200000, 8900000, 14500000, 16800000],
+            backgroundColor: 'rgba(212, 175, 55, 0.75)',
+            borderColor: '#d4af37',
+            borderWidth: 1.5,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      const ctxPie = document.getElementById('roomPieChart').getContext('2d');
+      const stats = DB.getStats();
+      myPieChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Phòng Trống', 'Đang Phục Vụ', 'Chờ Vệ Sinh'],
+          datasets: [{
+            data: [stats.availableRoomsCount, stats.servingRoomsCount, stats.cleaningRoomsCount],
+            backgroundColor: ['#28a745', '#fd7e14', '#dc3545']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    function updateCharts() {
+      const stats = DB.getStats();
+      if (myPieChart) {
+        myPieChart.data.datasets[0].data = [stats.availableRoomsCount, stats.servingRoomsCount, stats.cleaningRoomsCount];
+        myPieChart.update();
+      }
+    }
+
+    function openAddMenuModal() {
+      document.getElementById('menuItemId').value = '';
+      document.getElementById('menuItemName').value = '';
+      document.getElementById('menuItemPrice').value = '';
+      document.getElementById('menuItemDesc').value = '';
+
+      const cats = DB.getCategories();
+      document.getElementById('menuItemCat').innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+      new bootstrap.Modal(document.getElementById('menuModal')).show();
+    }
+
+    function handleSaveMenu(e) {
+      e.preventDefault();
+      const name = document.getElementById('menuItemName').value.trim();
+      const catId = Number(document.getElementById('menuItemCat').value);
+      const price = Number(document.getElementById('menuItemPrice').value);
+      const station = document.getElementById('menuItemStation').value;
+      const desc = document.getElementById('menuItemDesc').value.trim();
+
+      DB.saveMenuItem({
+        name,
+        catId,
+        price,
+        station,
+        desc,
+        img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400',
+        isHot: false
+      });
+
+      bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
+      renderMenuTable();
+    }
+
+    function deleteMenu(id) {
+      if (confirm('Bạn có chắc chắn muốn xóa món ăn này khỏi thực đơn?')) {
+        DB.deleteMenuItem(id);
+        renderMenuTable();
+      }
+    }
+
+    function resetDemoData() {
+      if (confirm('Khôi phục toàn bộ CSDL mẫu ban đầu với 7 loại phòng, 26 món ăn và các chương trình ưu đãi?')) {
+        localStorage.clear();
+        DB.forceReset();
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
