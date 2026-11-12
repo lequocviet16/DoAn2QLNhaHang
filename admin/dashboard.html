@@ -39,9 +39,16 @@
         <h4 class="mb-0 fw-bold"><i class="fas fa-chart-line text-warning me-2"></i> Báo Cáo Doanh Thu & Quản Lý Nhà Hàng</h4>
         <span class="badge bg-dark">Quản lý cấp cao</span>
       </div>
-      <div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-primary btn-sm fw-bold" onclick="exportDataJSON()" title="Xuất toàn bộ dữ liệu hiện tại ra file .json để mang sang máy khác">
+          <i class="fas fa-file-export me-1"></i> Xuất JSON
+        </button>
+        <button class="btn btn-outline-success btn-sm fw-bold" onclick="document.getElementById('importJsonInput').click()" title="Nhập dữ liệu từ file .json đã xuất trước đó">
+          <i class="fas fa-file-import me-1"></i> Nhập JSON
+        </button>
+        <input type="file" id="importJsonInput" accept=".json,application/json" style="display: none;" onchange="handleImportJson(event)">
         <button class="btn btn-outline-danger btn-sm" onclick="resetDemoData()">
-          <i class="fas fa-undo me-1"></i> Đặt Lại Dữ Liệu Mẫu (Seed Data)
+          <i class="fas fa-undo me-1"></i> Đặt Lại Mẫu
         </button>
       </div>
     </header>
@@ -391,6 +398,49 @@
         DB.forceReset();
         location.reload();
       }
+    }
+
+    function exportDataJSON() {
+      const data = DB.exportAllData();
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `leviet-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function handleImportJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!confirm('Nhập dữ liệu từ file sẽ ghi đè toàn bộ dữ liệu hiện tại trên trình duyệt này. Bạn có muốn tiếp tục?')) {
+            event.target.value = '';
+            return;
+          }
+          const result = DB.importAllData(parsed);
+          alert(result.message);
+          if (result.success) {
+            renderDashboard();
+            updateCharts();
+          }
+        } catch (err) {
+          alert('Lỗi đọc file JSON: File không đúng định dạng JSON hợp lệ.');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
     }
   </script>
 </body>

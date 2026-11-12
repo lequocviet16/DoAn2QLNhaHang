@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HỆ THỐNG QUẢN LÝ NHÀ HÀNG LEVIET
 ## ĐỒ ÁN 2: THIẾT KẾ WEB CƠ BẢN (FRONT-END / WEB TĨNH)
 **Khoa Công nghệ Thông tin - Trường Đại học Sư phạm Kỹ thuật Hưng Yên (UTEHY)**
@@ -48,3 +49,7 @@ Project/
 5. **Bước 5 (Thu ngân tính tiền):** Mở `admin/pos.html`, chọn phòng, hệ thống tự tính tiền phòng theo giờ + tiền món, hiển thị mã VietQR động để quét. Bấm "Hoàn tất thanh toán & Trả phòng".
 6. **Bước 6 (Vệ sinh dọn phòng):** Ngay khi thanh toán, phòng chuyển sang màu đỏ `NEEDS_CLEANING`. Mở `admin/housekeeping.html`, bấm "Bắt đầu dọn" $\rightarrow$ "Đã dọn sạch" $\rightarrow$ Quay lại tab Lễ tân thấy phòng đã xanh trở lại, sẵn sàng đón khách mới!
 7. **Bước 7 (Báo cáo):** Mở `admin/dashboard.html` để xem doanh thu vừa được cộng vào hệ thống biểu đồ.
+=======
+# DoAn2QLNhaHang
+QLnhahang
+>>>>>>> e16c05e16c14a7ea0325c793019d6fa505761e28

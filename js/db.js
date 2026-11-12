@@ -569,6 +569,52 @@ const DB = {
       availableRoomsCount,
       totalRooms: rooms.length
     };
+  },
+
+  // ================= EXPORT / IMPORT JSON (CHUYỂN DỮ LIỆU GIỮA CÁC MÁY) =================
+  exportAllData() {
+    return {
+      app: 'LeViet_Restaurant_Management',
+      exportedAt: new Date().toISOString(),
+      version: DB_VERSION,
+      data: {
+        roomTypes: this.getRoomTypes(),
+        rooms: this.getRooms(),
+        categories: this.getCategories(),
+        menuItems: this.getMenuItems(),
+        promotions: this.getPromotions(),
+        bookings: this.getBookings(),
+        orders: this.getOrders(),
+        invoices: JSON.parse(localStorage.getItem(DB_KEYS.INVOICES) || '[]')
+      }
+    };
+  },
+
+  importAllData(payload) {
+    if (!payload || typeof payload !== 'object' || !payload.data) {
+      return { success: false, message: 'Định dạng file JSON không hợp lệ hoặc thiếu trường "data".' };
+    }
+
+    const d = payload.data;
+    if (!Array.isArray(d.rooms) || !Array.isArray(d.menuItems) || !Array.isArray(d.roomTypes)) {
+      return { success: false, message: 'File JSON không chứa đủ dữ liệu cốt lõi (rooms, menuItems, roomTypes).' };
+    }
+
+    localStorage.setItem(DB_KEYS.ROOM_TYPES, JSON.stringify(d.roomTypes));
+    localStorage.setItem(DB_KEYS.ROOMS, JSON.stringify(d.rooms));
+    localStorage.setItem(DB_KEYS.CATEGORIES, JSON.stringify(d.categories || SEED_DATA.categories));
+    localStorage.setItem(DB_KEYS.MENU_ITEMS, JSON.stringify(d.menuItems));
+    localStorage.setItem(DB_KEYS.PROMOTIONS, JSON.stringify(d.promotions || SEED_DATA.promotions));
+    localStorage.setItem(DB_KEYS.BOOKINGS, JSON.stringify(d.bookings || []));
+    localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(d.orders || []));
+    localStorage.setItem(DB_KEYS.INVOICES, JSON.stringify(d.invoices || []));
+    localStorage.setItem(DB_KEYS.VERSION, DB_VERSION);
+
+    this.notifyChange('DATA_IMPORTED', { importedAt: new Date().toISOString() });
+    return {
+      success: true,
+      message: `Nhập thành công ${d.rooms.length} phòng, ${d.menuItems.length} món ăn, ${ (d.orders || []).length } đơn hàng và ${ (d.invoices || []).length } hóa đơn!`
+    };
   }
 };
 
